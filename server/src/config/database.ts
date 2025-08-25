@@ -1,8 +1,15 @@
-import { Sequelize } from 'sequelize';
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config(); 
 
-const sequelize = new Sequelize("chat-app", "root", "Omer@2006", {
-    host: "localhost",
-    dialect: "mysql"
-});
 
-export default sequelize;
+const db : string = process.env.DB_URL as string
+const dbConnect = async () => {
+    try {
+        await mongoose.connect(db)
+        console.log("DB connected Successfully");
+    } catch (error) {
+        console.log(error);
+    }
+}
+dbConnect();

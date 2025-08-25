@@ -1,44 +1,18 @@
-import { DataTypes, Model, Optional } from 'sequelize';
-import sequelize from '../config/database';
-import User from './User';
+import mongoose, { Document, Schema } from "mongoose";
 
-// Define attributes for Message model
-interface MessageAttributes {
-    id: number;
-    text: string;
-    userId: number;
+interface IMessage extends Document {
+  text: string;
+  userId: mongoose.Types.ObjectId; // References User model
 }
 
-// Allow optional fields for Sequelize's `create()` method
-interface MessageCreationAttributes extends Optional<MessageAttributes, 'id'> {}
-
-// Define the Message model
-class Message extends Model<MessageAttributes, MessageCreationAttributes> {
-    public id!: number;
-    public text!: string;
-    public userId!: number;
-}
-
-// Initialize Message model
-Message.init(
-    {
-        id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-        text: { type: DataTypes.STRING, allowNull: false },
-        userId: { 
-            type: DataTypes.INTEGER, 
-            allowNull: false, 
-            references: { model: User, key: 'id' } 
-        },
-    },
-    { 
-        sequelize, 
-        modelName: 'Message',
-        timestamps: true, // Adds createdAt & updatedAt
-    }
+const MessageSchema = new Schema<IMessage>(
+  {
+    text: { type: String, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  },
+  { timestamps: true }
 );
 
-// Define Relationships
-User.hasMany(Message, { foreignKey: 'userId', onDelete: 'CASCADE' });
-Message.belongsTo(User, { foreignKey: 'userId' });
+const Message = mongoose.model<IMessage>("Message", MessageSchema);
 
 export default Message;

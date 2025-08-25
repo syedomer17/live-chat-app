@@ -1,32 +1,33 @@
-import { Request, Response } from 'express';
-import Message from '../models/Message';
+import { Request, Response } from "express";
+import Message from "../models/Message";
 
-export const sendMessage = async (req: Request, res: Response):Promise<void> => {
+export const sendMessage = async (req: Request, res: Response): Promise<void> => {
     try {
         const { userId, text } = req.body; 
         
         if (!userId || !text) {
-             res.status(400).json({ message: 'User ID and text are required' });
-             return
+            res.status(400).json({ message: "User ID and text are required" });
+            return;
         }
 
-        const message = await Message.create({ userId, text });
+        // ✅ Mongoose way to create & save a message
+        const message = new Message({ userId, text });
+        await message.save();
 
-         res.status(201).json(message);
+        res.status(201).json(message);
     } catch (error) {
-         res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ message: "Server error", error });
     }
 };
 
-export const getMessages = async (req: Request, res: Response):Promise<void> => {
+export const getMessages = async (req: Request, res: Response): Promise<void> => {
     try {
-        const messages = await Message.findAll({
-            include: { all: true }, // Fetches related User data
-            order: [['createdAt', 'DESC']],
-        });
-
-         res.json(messages);
+        
+        const messages = await Message.find()
+            .populate("userId", "username") 
+            .sort({ createdAt: -1 }); 
+        res.json(messages);
     } catch (error) {
-         res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ message: "Server error", error });
     }
 };

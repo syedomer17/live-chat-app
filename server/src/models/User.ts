@@ -1,19 +1,21 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../config/database';
+import mongoose, { Document, Schema } from "mongoose";
 
-class User extends Model {
-    public id!: number;
-    public username!: string;
-    public password!: string;
+// Define User Interface for TypeScript
+interface IUser extends Document {
+  username: string;
+  password: string;
 }
 
-User.init(
-    {
-        id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-        username: { type: DataTypes.STRING, allowNull: false, unique: true },
-        password: { type: DataTypes.STRING, allowNull: false },
-    },
-    { sequelize, modelName: 'user' }
+// Define User Schema
+const UserSchema = new Schema<IUser>(
+  {
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+  },
+  { timestamps: true } // Adds createdAt & updatedAt automatically
 );
+
+// Create User Model
+const User = mongoose.model<IUser>("User", UserSchema);
 
 export default User;
